@@ -27,7 +27,7 @@ public class Part01Flux {
 
 	// TODO Return an empty Flux
 	Flux<String> emptyFlux() {
-		return null;
+		return Flux.empty();
 	}
 
 //========================================================================================
@@ -42,7 +42,7 @@ public class Part01Flux {
 
 	// TODO Return a Flux that contains 2 values "foo" and "bar" without using an array or a collection
 	Flux<String> fooBarFluxFromValues() {
-		return null;
+		return Flux.just("foo", "bar");
 	}
 
 //========================================================================================
@@ -57,7 +57,7 @@ public class Part01Flux {
 
 	// TODO Create a Flux from a List that contains 2 values "foo" and "bar"
 	Flux<String> fooBarFluxFromList() {
-		return null;
+		return Flux.fromArray(new String[] {"foo", "bar"});
 	}
 
 //========================================================================================
@@ -70,7 +70,7 @@ public class Part01Flux {
 	}
 	// TODO Create a Flux that emits an IllegalStateException
 	Flux<String> errorFlux() {
-		return null;
+		return Flux.error(new IllegalStateException());
 	}
 
 //========================================================================================
@@ -85,7 +85,7 @@ public class Part01Flux {
 
 	// TODO Create a Flux that emits increasing values from 0 to 9 each 100ms
 	Flux<Long> counter() {
-		return null;
+		return Flux.intervalMillis(100).take(10);
 	}
 
 }

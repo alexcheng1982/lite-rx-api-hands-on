@@ -18,14 +18,12 @@ package io.pivotal.literx;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import io.pivotal.literx.domain.User;
 import io.pivotal.literx.repository.ReactiveRepository;
 import io.pivotal.literx.repository.ReactiveUserRepository;
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
-import io.reactivex.Observable;
-import io.reactivex.Single;
+import io.reactivex.*;
 import org.junit.Test;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
@@ -60,12 +58,16 @@ public class Part09Adapt {
 
 	// TODO Adapt Flux to RxJava Flowable
 	Flowable<User> fromFluxToFlowable(Flux<User> flux) {
-		return null;
+		return Flowable.create(e -> {
+		    flux.subscribe(e::onNext, e::onError, e::onComplete);
+        }, BackpressureStrategy.BUFFER);
 	}
 
 	// TODO Adapt RxJava Flowable to Flux
 	Flux<User> fromFlowableToFlux(Flowable<User> flowable) {
-		return null;
+		return Flux.create(sink -> {
+		    flowable.subscribe(sink::next, sink::error, sink::complete);
+        });
 	}
 
 //========================================================================================
@@ -81,12 +83,16 @@ public class Part09Adapt {
 
 	// TODO Adapt Flux to RxJava Observable
 	Observable<User> fromFluxToObservable(Flux<User> flux) {
-		return null;
+        return Observable.create(e -> {
+            flux.subscribe(e::onNext, e::onError, e::onComplete);
+        });
 	}
 
 	// TODO Adapt RxJava Observable to Flux
 	Flux<User> fromObservableToFlux(Observable<User> observable) {
-		return null;
+	    return Flux.create(sink -> {
+		    observable.subscribe(sink::next, sink::error, sink::complete);
+        });
 	}
 
 //========================================================================================
@@ -102,12 +108,18 @@ public class Part09Adapt {
 
 	// TODO Adapt Mono to RxJava Single
 	Single<User> fromMonoToSingle(Mono<User> mono) {
-		return null;
+		return Single.create(e -> {
+            mono.subscribe(e::onSuccess);
+            mono.doOnError(e::onError);
+        });
 	}
 
 	// TODO Adapt RxJava Single to Mono
 	Mono<User> fromSingleToMono(Single<User> single) {
-		return null;
+		return Mono.create(sink -> {
+		    single.subscribe(sink::success);
+		    single.doOnError(sink::error);
+        });
 	}
 
 //========================================================================================
@@ -123,12 +135,21 @@ public class Part09Adapt {
 
 	// TODO Adapt Mono to Java 8+ CompletableFuture
 	CompletableFuture<User> fromMonoToCompletableFuture(Mono<User> mono) {
-		return null;
+		CompletableFuture<User> result = new CompletableFuture<>();
+		mono.subscribe(result::complete);
+		mono.doOnError(result::completeExceptionally);
+		return result;
 	}
 
 	// TODO Adapt Java 8+ CompletableFuture to Mono
 	Mono<User> fromCompletableFutureToMono(CompletableFuture<User> future) {
-		return null;
+		return Mono.create(sink -> {
+            try {
+                sink.success(future.get());
+            } catch (Exception e) {
+                sink.error(e);
+            }
+        });
 	}
 
 }
